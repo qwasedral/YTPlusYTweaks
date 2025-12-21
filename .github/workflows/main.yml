@@ -218,168 +218,158 @@ jobs:
         env:
           THEOS: ${{ github.workspace }}/theos
 
-      - name: Clone YouPiP
-        if: ${{ inputs.enable_youpip }}
+      - name: Clone tweaks
+        if: ${{ inputs.enable_youpip || inputs.enable_ytuhd || inputs.enable_yq || inputs.enable_ryd || inputs.enable_demc || inputs.enable_ytabconfig || inputs.enable_ytweaks || inputs.enable_yticons || inputs.enable_yougroupsettings || inputs.enable_gonerino }}
         run: |
           cd ${{ github.workspace }}
-          git clone --quiet --depth=1 https://github.com/PoomSmart/YouPiP.git
-
-      - name: Clone YTUHD
-        if: ${{ inputs.enable_ytuhd }}
-        run: |
-          cd ${{ github.workspace }}
-          git clone --quiet --depth=1 https://github.com/Tonwalter888/YTUHD.git
           
-      - name: Clone Return-YouTube-Dislikes
-        if: ${{ inputs.enable_ryd }}
+          if [ "${{ inputs.enable_youpip }}" = "true" ]; then
+            echo "Cloning YouPiP..."
+            git clone --quiet --depth=1 https://github.com/PoomSmart/YouPiP.git
+          fi
+          
+          if [ "${{ inputs.enable_ytuhd }}" = "true" ]; then
+            echo "Cloning YTUHD..."
+            git clone --quiet --depth=1 https://github.com/Tonwalter888/YTUHD.git
+          fi
+          
+          if [ "${{ inputs.enable_ryd }}" = "true" ]; then
+            echo "Cloning Return-YouTube-Dislikes..."
+            git clone --quiet --depth=1 https://github.com/PoomSmart/Return-YouTube-Dislikes.git
+          fi
+          
+          if [ "${{ inputs.enable_yougroupsettings }}" = "true" ]; then
+            echo "Cloning YouGroupSettings..."
+            git clone --quiet --depth=1 https://github.com/fosterbarnes/YouGroupSettings.git
+          fi
+          
+          if [ "${{ inputs.enable_yq }}" = "true" ]; then
+            echo "Cloning YouQuality..."
+            git clone --quiet --depth=1 https://github.com/PoomSmart/YouQuality.git
+          fi
+          
+          if [ "${{ inputs.enable_ytabconfig }}" = "true" ]; then
+            echo "Cloning YTABConfig..."
+            git clone --quiet --depth=1 https://github.com/PoomSmart/YTABConfig.git
+          fi
+          
+          if [ "${{ inputs.enable_ytweaks }}" = "true" ]; then
+            echo "Cloning YTweaks..."
+            git clone --quiet --depth=1 https://github.com/fosterbarnes/YTweaks.git
+          fi
+          
+          if [ "${{ inputs.enable_yticons }}" = "true" ]; then
+            echo "Cloning YTIcons..."
+            git clone --quiet --depth=1 https://github.com/PoomSmart/YTIcons.git
+          fi
+          
+          if [ "${{ inputs.enable_demc }}" = "true" ]; then
+            echo "Cloning DontEatMyContent..."
+            git clone --quiet --depth=1 --recurse-submodules https://github.com/therealFoxster/DontEatMyContent.git
+          fi
+          
+          if [ "${{ inputs.enable_gonerino }}" = "true" ]; then
+            echo "Cloning Gonerino..."
+            git clone --quiet --depth=1 https://github.com/castdrian/Gonerino.git
+          fi
+          
+          if [ "${{ inputs.enable_yq }}" = "true" ] || [ "${{ inputs.enable_youpip }}" = "true" ]; then
+            echo "Cloning YTVideoOverlay..."
+            git clone --quiet --depth=1 https://github.com/PoomSmart/YTVideoOverlay.git
+          fi
+
+      - name: Build tweaks
+        if: ${{ inputs.enable_youpip || inputs.enable_ytuhd || inputs.enable_yq || inputs.enable_ryd || inputs.enable_demc || inputs.enable_ytabconfig || inputs.enable_ytweaks || inputs.enable_yticons || inputs.enable_yougroupsettings || inputs.enable_gonerino }}
         run: |
           cd ${{ github.workspace }}
-          git clone --quiet --depth=1 https://github.com/PoomSmart/Return-YouTube-Dislikes.git
- 
-      - name: Clone YouGroupSettings
-        if: ${{ inputs.enable_yougroupsettings }}
-        run: |
-          cd ${{ github.workspace }}
-          git clone --quiet --depth=1 https://github.com/fosterbarnes/YouGroupSettings.git
-
-      - name: Clone YouQuality
-        if: ${{ inputs.enable_yq }}
-        run: |
-          cd ${{ github.workspace }}
-          git clone --quiet --depth=1 https://github.com/PoomSmart/YouQuality.git
-
-      - name: Clone YTVideoOverlay
-        if: ${{ inputs.enable_yq || inputs.enable_youpip }}
-        run: |
-          cd ${{ github.workspace }}
-          git clone --quiet --depth=1 https://github.com/PoomSmart/YTVideoOverlay.git
-
-      - name: Clone YTABConfig
-        if: ${{ inputs.enable_ytabconfig }}
-        run: |
-          cd ${{ github.workspace }}
-          git clone --quiet --depth=1 https://github.com/PoomSmart/YTABConfig.git
-
-      - name: Clone YTweaks
-        if: ${{ inputs.enable_ytweaks }}
-        run: |
-          cd ${{ github.workspace }}
-          git clone --quiet --depth=1 https://github.com/fosterbarnes/YTweaks.git
-
-      - name: Clone YTIcons
-        if: ${{ inputs.enable_yticons }}
-        run: |
-          cd ${{ github.workspace }}
-          git clone --quiet --depth=1 https://github.com/PoomSmart/YTIcons.git
-
-      - name: Clone DontEatMyContent
-        if: ${{ inputs.enable_demc }}
-        run: |
-          cd ${{ github.workspace }}
-          git clone --quiet --depth=1 --recurse-submodules https://github.com/therealFoxster/DontEatMyContent.git
-
-      - name: Clone Gonerino
-        if: ${{ inputs.enable_gonerino }}
-        run: |
-          cd ${{ github.workspace }}
-          git clone --quiet --depth=1 https://github.com/castdrian/Gonerino.git
-
-      - name: Build YouPiP
-        if: ${{ inputs.enable_youpip }}
-        run: |
-          cd ${{ github.workspace }}/YouPiP
-          make clean package DEBUG=0 FINALPACKAGE=1
-          mv packages/*.deb ${{ github.workspace }}/youpip.deb
-        env:
-          THEOS: ${{ github.workspace }}/theos
-
-      - name: Build YTUHD
-        if: ${{ inputs.enable_ytuhd }}
-        run: |
-          cd ${{ github.workspace }}/YTUHD
-          make clean package DEBUG=0 FINALPACKAGE=1
-          mv packages/*.deb ${{ github.workspace }}/ytuhd.deb
-        env:
-          THEOS: ${{ github.workspace }}/theos
-
-      - name: Build Return-YouTube-Dislikes
-        if: ${{ inputs.enable_ryd }}
-        run: |
-          cd ${{ github.workspace }}/Return-YouTube-Dislikes
-          make clean package DEBUG=0 FINALPACKAGE=1
-          mv packages/*.deb ${{ github.workspace }}/ryd.deb
-        env:
-          THEOS: ${{ github.workspace }}/theos
-
-      - name: Build YouGroupSettings
-        if: ${{ inputs.enable_yougroupsettings }}
-        run: |
-          cd ${{ github.workspace }}/YouGroupSettings
-          make clean package DEBUG=0 FINALPACKAGE=1
-          mv packages/*.deb ${{ github.workspace }}/ygs.deb
-        env:
-          THEOS: ${{ github.workspace }}/theos
-
-      - name: Build YouQuality
-        if: ${{ inputs.enable_yq }}
-        run: |
-          cd ${{ github.workspace }}/YouQuality
-          make clean package DEBUG=0 FINALPACKAGE=1
-          mv packages/*.deb ${{ github.workspace }}/yq.deb
-        env:
-          THEOS: ${{ github.workspace }}/theos
-
-      - name: Build YTVideoOverlay
-        if: ${{ inputs.enable_yq || inputs.enable_youpip }}
-        run: |
-          cd ${{ github.workspace }}/YTVideoOverlay
-          make clean package DEBUG=0 FINALPACKAGE=1
-          mv packages/*.deb ${{ github.workspace }}/ytvo.deb
-        env:
-          THEOS: ${{ github.workspace }}/theos
-
-      - name: Build YTABConfig
-        if: ${{ inputs.enable_ytabconfig }}
-        run: |
-          cd ${{ github.workspace }}/YTABConfig
-          make clean package DEBUG=0 FINALPACKAGE=1
-          mv packages/*.deb ${{ github.workspace }}/yabc.deb
-        env:
-          THEOS: ${{ github.workspace }}/theos
-
-      - name: Build YTweaks
-        if: ${{ inputs.enable_ytweaks }}
-        run: |
-          cd ${{ github.workspace }}/YTweaks
-          make clean package DEBUG=0 FINALPACKAGE=1
-          mv packages/*.deb ${{ github.workspace }}/ytwks.deb
-        env:
-          THEOS: ${{ github.workspace }}/theos
-
-      - name: Build YTIcons
-        if: ${{ inputs.enable_yticons }}
-        run: |
-          cd ${{ github.workspace }}/YTIcons
-          make clean package DEBUG=0 FINALPACKAGE=1
-          mv packages/*.deb ${{ github.workspace }}/yticons.deb
-        env:
-          THEOS: ${{ github.workspace }}/theos
-
-      - name: Build DontEatMyContent
-        if: ${{ inputs.enable_demc }}
-        run: |
-          cd ${{ github.workspace }}/DontEatMyContent
-          make clean package DEBUG=0 FINALPACKAGE=1
-          mv packages/*.deb ${{ github.workspace }}/demc.deb
-        env:
-          THEOS: ${{ github.workspace }}/theos
-
-      - name: Build Gonerino
-        if: ${{ inputs.enable_gonerino }}
-        run: |
-          cd ${{ github.workspace }}/Gonerino
-          make clean package DEBUG=0 FINALPACKAGE=1
-          mv packages/*.deb ${{ github.workspace }}/gonerino.deb
+          
+          if [ "${{ inputs.enable_youpip }}" = "true" ]; then
+            echo "Building YouPiP..."
+            cd YouPiP
+            make clean package DEBUG=0 FINALPACKAGE=1
+            mv packages/*.deb ${{ github.workspace }}/youpip.deb
+            cd ..
+          fi
+          
+          if [ "${{ inputs.enable_ytuhd }}" = "true" ]; then
+            echo "Building YTUHD..."
+            cd YTUHD
+            make clean package DEBUG=0 FINALPACKAGE=1
+            mv packages/*.deb ${{ github.workspace }}/ytuhd.deb
+            cd ..
+          fi
+          
+          if [ "${{ inputs.enable_ryd }}" = "true" ]; then
+            echo "Building Return-YouTube-Dislikes..."
+            cd Return-YouTube-Dislikes
+            make clean package DEBUG=0 FINALPACKAGE=1
+            mv packages/*.deb ${{ github.workspace }}/ryd.deb
+            cd ..
+          fi
+          
+          if [ "${{ inputs.enable_yougroupsettings }}" = "true" ]; then
+            echo "Building YouGroupSettings..."
+            cd YouGroupSettings
+            make clean package DEBUG=0 FINALPACKAGE=1
+            mv packages/*.deb ${{ github.workspace }}/ygs.deb
+            cd ..
+          fi
+          
+          if [ "${{ inputs.enable_yq }}" = "true" ]; then
+            echo "Building YouQuality..."
+            cd YouQuality
+            make clean package DEBUG=0 FINALPACKAGE=1
+            mv packages/*.deb ${{ github.workspace }}/yq.deb
+            cd ..
+          fi
+          
+          if [ "${{ inputs.enable_ytabconfig }}" = "true" ]; then
+            echo "Building YTABConfig..."
+            cd YTABConfig
+            make clean package DEBUG=0 FINALPACKAGE=1
+            mv packages/*.deb ${{ github.workspace }}/yabc.deb
+            cd ..
+          fi
+          
+          if [ "${{ inputs.enable_ytweaks }}" = "true" ]; then
+            echo "Building YTweaks..."
+            cd YTweaks
+            make clean package DEBUG=0 FINALPACKAGE=1
+            mv packages/*.deb ${{ github.workspace }}/ytwks.deb
+            cd ..
+          fi
+          
+          if [ "${{ inputs.enable_yticons }}" = "true" ]; then
+            echo "Building YTIcons..."
+            cd YTIcons
+            make clean package DEBUG=0 FINALPACKAGE=1
+            mv packages/*.deb ${{ github.workspace }}/yticons.deb
+            cd ..
+          fi
+          
+          if [ "${{ inputs.enable_demc }}" = "true" ]; then
+            echo "Building DontEatMyContent..."
+            cd DontEatMyContent
+            make clean package DEBUG=0 FINALPACKAGE=1
+            mv packages/*.deb ${{ github.workspace }}/demc.deb
+            cd ..
+          fi
+          
+          if [ "${{ inputs.enable_gonerino }}" = "true" ]; then
+            echo "Building Gonerino..."
+            cd Gonerino
+            make clean package DEBUG=0 FINALPACKAGE=1
+            mv packages/*.deb ${{ github.workspace }}/gonerino.deb
+            cd ..
+          fi
+          
+          if [ "${{ inputs.enable_yq }}" = "true" ] || [ "${{ inputs.enable_youpip }}" = "true" ]; then
+            echo "Building YTVideoOverlay..."
+            cd YTVideoOverlay
+            make clean package DEBUG=0 FINALPACKAGE=1
+            mv packages/*.deb ${{ github.workspace }}/ytvo.deb
+            cd ..
+          fi
         env:
           THEOS: ${{ github.workspace }}/theos
 
