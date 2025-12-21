@@ -1,4 +1,4 @@
-name: Build YTPlusTweaked
+name: Build YTPlusYTweaks
 
 on:
   workflow_dispatch:
@@ -383,14 +383,14 @@ jobs:
             fi
           done
 
-          cyan -i youtube.ipa -o YTPlusTweaked_${{ inputs.tweak_version }}.ipa -uwef $tweaks -n "${{ inputs.display_name }}" -b ${{ inputs.bundle_id }}
+          cyan -i youtube.ipa -o YTPlusYTweaks_${{ inputs.tweak_version }}.ipa -uwef $tweaks -n "${{ inputs.display_name }}" -b ${{ inputs.bundle_id }}
 
       - name: Upload to GitHub Releases
         uses: softprops/action-gh-release@v2.0.1
         with:
           tag_name: ytp-${{ github.run_number }}
           name: YouTubePlus v${{ inputs.tweak_version }} (${{ github.run_number }})
-          files: YTPlusTweaked_${{ inputs.tweak_version }}.ipa
+          files: YTPlusYTweaks_${{ inputs.tweak_version }}.ipa
           draft: true
 
       - name: Output Release URL

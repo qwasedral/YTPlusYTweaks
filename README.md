@@ -17,7 +17,7 @@ Added tweaks:
 
 Original repo: https://github.com/dayanch96/YTLite
 
-## How to build a YTPlusTweaked using Github actions
+## How to build a YTPlusYTweaks using Github actions
 > [!NOTE]
 > If this your first time, complete following steps before starting:
 >
@@ -25,11 +25,11 @@ Original repo: https://github.com/dayanch96/YTLite
 > 2. On your forked repository, go to **Repository Settings** > **Actions**, enable **Read and Write** permissions.
 
 <details>
-  <summary>How to build YTPlusTweaked app</summary>
+  <summary>How to build YTPlusYTweaks app</summary>
   <ol>
     <li>Fork this repo if you haven't already. Sync if your branch is out of date.</li>
     <li>Go to the "Actions" tab of your new repo.</li>
-    <li>Select "Build YTPlusTweaked".</li>
+    <li>Select "Build YTPlusYTweaks".</li>
     <li>Click "Run workflow".</li>
     <li>Select bundled tweaks.</li>
     <li>Prepare a decrypted .ipa file <em>(we cannot provide this due to legal reasons)</em>, then upload it to a file provider (e.g., https://litterbox.catbox.moe, or Dropbox is recommended). Paste the URL of the decrypted IPA file in the provided field.
