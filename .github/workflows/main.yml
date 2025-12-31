@@ -52,17 +52,17 @@ on:
         required: true
         default: false
 
-      enable_yougroupsettings:
-        description: "Group Tweak Settings (YouGroupSettings)"
-        type: boolean
-        required: true
-        default: true
-
       enable_gonerino:
         description: "Integrate Gonerino"
         type: boolean
         required: true
         default: false
+
+      enable_yougroupsettings:
+        description: "Group Tweak Settings (YouGroupSettings)"
+        type: boolean
+        required: true
+        default: true
 
       ipa_url:
         description: "URL to the decrypted IPA file"
@@ -75,6 +75,16 @@ on:
         default: ""
         required: false
         type: string
+
+      sdk_version:
+        description: "iOS SDK Version"
+        type: choice
+        options:
+          - 16.5
+          - 17.5
+          - 18.6
+        required: true
+        default: 16.5
 
       display_name:
         description: "App Name (Optional)"
@@ -115,7 +125,27 @@ jobs:
       - name: Hide sensitive inputs
         uses: levibostian/action-hide-sensitive-inputs@v1
         with:
-          exclude_inputs: bundle_id,display_name,enable_demc,enable_ryd,enable_youpip,enable_yq,enable_ytabconfig,enable_ytweaks,enable_yticons,enable_yougroupsettings,enable_ytuhd,enable_gonerino,info_note,tweak_version
+          exclude_inputs: bundle_id,display_name,enable_demc,enable_ryd,enable_youpip,enable_yq,enable_ytabconfig,enable_ytweaks,enable_yticons,enable_yougroupsettings,enable_ytuhd,enable_gonerino,info_note,tweak_version,sdk_version
+
+      - name: Check if tweaks need to be built
+        id: check_tweaks
+        run: |
+          if [ "${{ inputs.enable_youpip }}" = "true" ] || \
+             [ "${{ inputs.enable_ytuhd }}" = "true" ] || \
+             [ "${{ inputs.enable_yq }}" = "true" ] || \
+             [ "${{ inputs.enable_ryd }}" = "true" ] || \
+             [ "${{ inputs.enable_demc }}" = "true" ] || \
+             [ "${{ inputs.enable_ytabconfig }}" = "true" ] || \
+             [ "${{ inputs.enable_ytweaks }}" = "true" ] || \
+             [ "${{ inputs.enable_yticons }}" = "true" ] || \
+             [ "${{ inputs.enable_yougroupsettings }}" = "true" ] || \
+             [ "${{ inputs.enable_gonerino }}" = "true" ]; then
+            echo "enabled=true" >> $GITHUB_OUTPUT
+            echo "Tweaks are enabled"
+          else
+            echo "enabled=false" >> $GITHUB_OUTPUT
+            echo "No tweaks enabled"
+          fi
 
       - name: Download and validate IPA
         run: |
@@ -131,31 +161,30 @@ jobs:
       - name: Install Dependencies
         run: brew install make ldid
 
-      - name: Set PATH environment variable
+      - name: Set GNU make PATH environment variable
         run: echo "$(brew --prefix make)/libexec/gnubin" >> $GITHUB_PATH
 
       - name: Cache Theos
-        if: ${{ inputs.enable_youpip || inputs.enable_ytuhd || inputs.enable_yq || inputs.enable_ryd || inputs.enable_demc || inputs.enable_ytabconfig || inputs.enable_ytweaks || inputs.enable_yticons || inputs.enable_yougroupsettings || inputs.enable_gonerino }}
+        if: steps.check_tweaks.outputs.enabled == 'true'
         id: theos
         uses: actions/cache@v4
         env:
           cache-name: theos_cache_67db2ab
         with:
           path: theos/
-          key: ${{ env.cache-name }}
-          restore-keys: ${{ env.cache-name }}
+          key: ${{ env.cache-name }}_${{ inputs.sdk_version }}
 
       - name: Setup Theos
-        if: ${{ (inputs.enable_youpip || inputs.enable_ytuhd || inputs.enable_yq || inputs.enable_ryd || inputs.enable_demc || inputs.enable_ytabconfig || inputs.enable_ytweaks || inputs.enable_yticons || inputs.enable_yougroupsettings || inputs.enable_gonerino) && steps.theos.outputs.cache-hit != 'true' }}
+        if: steps.check_tweaks.outputs.enabled == 'true' && steps.theos.outputs.cache-hit != 'true'
         uses: actions/checkout@v4.1.7
         with:
           repository: theos/theos
-          ref: 67db2ab8d950910161730de77c322658ea3e6b44
+          ref: 95ab5f4db49cb28ef8fff2d9ec91c840f2ca73f0
           path: ${{ github.workspace }}/theos
           submodules: recursive
 
-      - name: Download iOS SDK
-        if: ${{ (inputs.enable_youpip || inputs.enable_ytuhd || inputs.enable_yq || inputs.enable_ryd || inputs.enable_demc || inputs.enable_ytabconfig || inputs.enable_ytweaks || inputs.enable_yticons || inputs.enable_yougroupsettings || inputs.enable_gonerino) && steps.theos.outputs.cache-hit != 'true' }}
+      - name: Download iOS 16.5 SDK
+        if: ${{ steps.check_tweaks.outputs.enabled == 'true' && inputs.sdk_version == 16.5 && steps.theos.outputs.cache-hit != 'true' }}
         run: |
           git clone --quiet -n --depth=1 --filter=tree:0 https://github.com/theos/sdks/
           cd sdks
@@ -164,6 +193,31 @@ jobs:
           mv *.sdk $THEOS/sdks
         env:
           THEOS: ${{ github.workspace }}/theos
+
+
+      - name: Download iOS 17.5 SDK
+        if: ${{ steps.check_tweaks.outputs.enabled == 'true' && inputs.sdk_version == 17.5 && steps.theos.outputs.cache-hit != 'true' }}
+        run: |
+          git clone --quiet --no-tags --single-branch --depth=1 -n --filter=tree:0 https://github.com/Tonwalter888/iOS-17.5-SDK
+          cd iOS-17.5-SDK
+          git sparse-checkout set --no-cone iPhoneOS17.5.sdk
+          git checkout
+          mv *.sdk $THEOS/sdks
+        env:
+          THEOS: ${{ github.workspace }}/theos
+
+
+      - name: Download iOS 18.6 SDK
+        if: ${{ steps.check_tweaks.outputs.enabled == 'true' && inputs.sdk_version == 18.6 && steps.theos.outputs.cache-hit != 'true' }}
+        run: |
+          git clone --quiet --no-tags --single-branch --depth=1 -n --filter=tree:0 https://github.com/Tonwalter888/iOS-18.6-SDK.git
+          cd iOS-18.6-SDK
+          git sparse-checkout set --no-cone iPhoneOS18.6.sdk
+          git checkout
+          mv *.sdk $THEOS/sdks
+        env:
+          THEOS: ${{ github.workspace }}/theos
+
 
       - name: Install cyan
         run: pipx install --force https://github.com/asdfzxcvbn/pyzule-rw/archive/main.zip
@@ -232,7 +286,7 @@ jobs:
           mv *.appex ${{ github.workspace }}
 
       - name: Clone YouTubeHeader
-        if: ${{ inputs.enable_youpip || inputs.enable_ytuhd || inputs.enable_yq || inputs.enable_ryd || inputs.enable_demc || inputs.enable_ytabconfig || inputs.enable_ytweaks || inputs.enable_yticons || inputs.enable_yougroupsettings || inputs.enable_gonerino }}
+        if: steps.check_tweaks.outputs.enabled == 'true'
         run: |
           if [ -d "$THEOS/include/YouTubeHeader" ]; then
             echo "YouTubeHeader exists. Pulling latest changes..."
@@ -253,7 +307,7 @@ jobs:
           THEOS: ${{ github.workspace }}/theos
 
       - name: Clone PSHeader
-        if: ${{ inputs.enable_youpip || inputs.enable_ytuhd || inputs.enable_yq || inputs.enable_ryd || inputs.enable_demc || inputs.enable_ytabconfig || inputs.enable_ytweaks || inputs.enable_yticons || inputs.enable_yougroupsettings || inputs.enable_gonerino }}
+        if: steps.check_tweaks.outputs.enabled == 'true'
         run: |
           if [ -d "$THEOS/include/PSHeader" ]; then
             echo "PSHeader exists. Pulling latest changes..."
@@ -268,7 +322,7 @@ jobs:
           THEOS: ${{ github.workspace }}/theos
 
       - name: Clone tweaks
-        if: ${{ inputs.enable_youpip || inputs.enable_ytuhd || inputs.enable_yq || inputs.enable_ryd || inputs.enable_demc || inputs.enable_ytabconfig || inputs.enable_ytweaks || inputs.enable_yticons || inputs.enable_yougroupsettings || inputs.enable_gonerino }}
+        if: steps.check_tweaks.outputs.enabled == 'true'
         run: |
           cd ${{ github.workspace }}
           
@@ -328,7 +382,7 @@ jobs:
           fi
 
       - name: Build tweaks
-        if: ${{ inputs.enable_youpip || inputs.enable_ytuhd || inputs.enable_yq || inputs.enable_ryd || inputs.enable_demc || inputs.enable_ytabconfig || inputs.enable_ytweaks || inputs.enable_yticons || inputs.enable_yougroupsettings || inputs.enable_gonerino }}
+        if: steps.check_tweaks.outputs.enabled == 'true'
         run: |
           cd ${{ github.workspace }}
           
